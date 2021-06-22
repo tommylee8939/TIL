@@ -11,7 +11,11 @@
 3. .git 이라는 폴더 하나생성되고 master 속성 뜻
 4. 지우고 싶으면 rm -rf .git master속성 사라짐
 
+### config 설정
 
+`git config --global user.name ''`
+
+`git config --global user.email ''`
 
 ### git status
 
@@ -41,4 +45,19 @@
 변경사항이 없는 파일은 표시되지 않음
 
 
+
+### 리모트 연결하기 
+
+`git remote add origin <url>`
+
+`git remote remove <name>`
+
+`git remote rename <name> <new name>`
+
+
+
+### 리모트에서 클론 받기
+
+- 우선 다른 경로라고 가정
+- `git clone <url.git>`
 
