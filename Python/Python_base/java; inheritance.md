@@ -41,7 +41,8 @@ public class Person {
 ```java
 public class Student extends Person {
 
-    String job; // super class에도 같은 이름의 멤버 변수 존재 => instance variable hiding 발생
+    String job; // super class에도 같은 이름의 멤버 변수 존재 => instance variable hiding 발생.
+    //static 변수도 똑같은 이름쓰면 hidden된다
 
     public Student(String name, int age){
         super(name,age); //Person에 default constructor 없기때문에 직접 호출                 			                    // => 반드시 첫줄에 호출되어야 한다
