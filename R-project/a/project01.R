@@ -1,4 +1,5 @@
 library(ggplot2)
+library(reshape)
 library(dplyr)
 library(gridExtra)
 theme_set(theme_gray(base_family="AppleGothic"))
@@ -42,7 +43,8 @@ ggplot(data = covid_new,aes(x=`날짜`,y=합계)) +
   geom_vline(xintercept = c(as.Date('2020-02-28'),as.Date('2020-05-05'),as.Date('2020-08-12'),as.Date('2020-11-13'),as.Date('2021-02-28')),lty='dashed')+
   geom_text(aes(x=as.Date('2021-01-04'),y=720),label='3rd wave') +
   geom_text(aes(x=as.Date('2020-09-28'),y=720),label='2nd wave')+
-  geom_text(aes(x=as.Date('2020-03-30'),y=720),label='1st wave')
+  geom_text(aes(x=as.Date('2020-03-30'),y=720),label='1st wave')+
+  ggtitle('2020-02-28~2021-05-31/n 서울시 코로나 일별 확진자 변화')
   
   
 
@@ -76,7 +78,44 @@ ggplot(data=thirty_days,aes(x=날짜,y=합계,fill=평일주말))+
   theme(text = element_text(size=5),
         axis.text.x=element_text(angle =- 90, vjust = 0.5))
 
+# 30일 전후를 기준으로 모든 역들이 이동량이 다 감소한건지 
+# 아니면 특정 역의 이동량이 감소한건지
+# 각 역 기준 시간대별 승하차 합치자
 
+metro_each_station<- read.csv('../data/data.csv',encoding = 'UTF-8')
+metro_each_station$역명<-gsub("\\([^)]*\\)","",metro_each_station$역명)
+total_station<- metro_each_station[metro_each_station$날짜==as.Date('2019-01-01'),][c('호선','역명')]
+total_station_df<-unique(total_station)
+row.names(total_station_df)<-c()
+total_station_df
+
+
+
+metro_each_station$합계 <-apply(metro_each_station[,6:24],1,sum)
+metro_each_station<-metro_each_station %>% group_by(날짜,호선,역명) %>% summarise(합계=sum(합계))
+metro_each_station<-as.data.frame(metro_each_station)
+metro_each_station$날짜<-as.Date(metro_each_station$날짜,format='%Y-%m-%d')
+str(metro_each_station)
+
+usage_decreased <- list()
+usage_decreased 
+
+
+for (i in c(1:nrow(total_station_df))){
+  line_number = total_station_df$호선[i]
+  station_name = total_station_df$역명[i]
+
+  thirty_days_before<-metro_each_station[metro_each_station$날짜 %in% c(as.Date('2020-11-24')-30:1),]
+  thirty_days_before<-thirty_days_before[(thirty_days_before$호선==line_number)&(thirty_days_before$역명==station_name),]
+  thirty_days_after<-metro_each_station[metro_each_station$날짜 %in% c(as.Date('2020-11-24')+1:30),]
+  thirty_days_after<-thirty_days_after[(thirty_days_after$호선==line_number)&(thirty_days_after$역명==station_name),]
+  
+  if(wilcox.test(thirty_days_after$합계,thirty_days_before$합계,alt='less')[3]<0.05){
+    usage_decreased[[i]]<-c(line_number,station_name)
+  }
+}
+
+usage_decreased 
 
 # 2021년 3월 5월 이용량
 # 2020년 3월 5월 이용량
@@ -97,8 +136,40 @@ metro_total<-metro_total[index,]
 
 ggplot(data=metro_total,aes(x=날짜,y=합계,fill=평일주말))+
   geom_col()+
-  facet_wrap(~구분,ncol=3,scales = 'free_x')
+  facet_wrap(~구분,ncol=3,scales = 'free_x')+
+  ggtitle('2019년,2020년,2021년 3월~5월 지하철 총 이용량')
 
 
 
 
+#구별 일일 확진자 추가
+
+covid_new_by_distinct<-covid[,seq(1,53,2)] 
+colnames(covid_new_by_distinct)<-c('날짜',gsub("추가","",colnames(covid_new_by_distinct)[-1]))
+covid_new_by_distinct<-covid_new_by_distinct[,-27]
+
+
+ggplot(data=covid_new_by_distinct[c(1,2)],aes(x=`자치구 기준일`,y=`종로구 추가`))+
+  geom_col()
+
+
+
+ggplot(melt(covid_new_by_distinct,
+            id.vars = 1),aes(x=날짜,y=value))+
+  geom_col() + facet_wrap(~variable)
+
+
+# 구별 누적 확진자 그래프
+
+covid_new_cumulate<-covid[,c(1,seq(2,53,2))] 
+colnames(covid_new_cumulate)<-c('날짜',gsub("전체","",colnames(covid_new_cumulate)[-1]))
+covid_new_cumulate <- covid_new_cumulate[-27]
+covid_new_cumulate
+
+library(RColorBrewer)
+colorRampPalette(brewer.pal(10, "BrBG"))(26)
+
+ggplot(melt(covid_new_cumulate,
+            id.vars = 1),aes(x=날짜,y=value,col=variable))+
+  geom_line() + scale_color_manual(values=colorRampPalette(brewer.pal(10, "BrBG"))(26))
+  
