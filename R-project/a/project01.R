@@ -149,11 +149,6 @@ colnames(covid_new_by_distinct)<-c('날짜',gsub("추가","",colnames(covid_new_
 covid_new_by_distinct<-covid_new_by_distinct[,-27]
 
 
-ggplot(data=covid_new_by_distinct[c(1,2)],aes(x=`자치구 기준일`,y=`종로구 추가`))+
-  geom_col()
-
-
-
 ggplot(melt(covid_new_by_distinct,
             id.vars = 1),aes(x=날짜,y=value))+
   geom_col() + facet_wrap(~variable)
@@ -172,4 +167,43 @@ colorRampPalette(brewer.pal(10, "BrBG"))(26)
 ggplot(melt(covid_new_cumulate,
             id.vars = 1),aes(x=날짜,y=value,col=variable))+
   geom_line() + scale_color_manual(values=colorRampPalette(brewer.pal(10, "BrBG"))(26))
-  
+
+
+
+
+# 특정 하루의 변동폭은 의미없다 => 평일 주말에 따라 달라지고 사회적 거리두기 시행 유무에 따라 달라진다
+ 
+metro_each_station %>% group_by(날짜) %>% top_n(n=10) %>% head(100) # 날짜별 이용객수 
+
+# 2019년 3월~5월 2021년 3월~5월 평균 이용객 감소량
+
+# 5호선 미사,하남검단사, 하남시청,하남풍산,강일
+# 6호선 연신내
+# 6호선 신내()
+# 3호선 충무로(183)
+
+data<-metro_each_station %>% 
+  filter((날짜>=as.Date('2019-03-01')&날짜<=as.Date('2019-05-31'))|(날짜>=as.Date('2021-03-01')&날짜<=as.Date('2021-05-31'))) %>% 
+  mutate(구분 = strftime(날짜,format='%Y')) %>% 
+  group_by(구분,호선,역명) %>% 
+  summarise(평균 = mean(합계)) %>% 
+  arrange(호선,역명)
+
+data<-as.data.frame(data)
+data<-data[-c(183,340,341,342,285,242,389,398),]
+row.names(data)<-c()
+
+data_2019 <- data[seq(1,550,2),]
+row.names(data_2019)<-c()
+
+data_2021 <- data[seq(2,550,2),]
+row.names(data_2021)<-c()
+
+result <-data.frame(호선=data_2021$호선,역명=data_2021$역명,감소율=(data_2019$평균 - data_2021$평균)/data_2019$평균*100)
+result %>% arrange(desc(감소율))
+
+
+
+
+
+
