@@ -71,6 +71,7 @@ thirty_days<-rbind(thirty_days_before,thirty_days_after)
 thirty_days$평일주말 <-weekdays(thirty_days$날짜,abbr=TRUE)
 thirty_days$평일주말<-ifelse((thirty_days$평일주말=='Sat')|(thirty_days$평일주말=='Sun'),'주말','평일')
 
+
 ggplot(data=thirty_days,aes(x=날짜,y=합계,fill=평일주말))+
   geom_col()+facet_wrap(~구분,ncol=2,scales = 'free_x')+
   scale_x_date(date_breaks = '1 day',date_labels = "%a")+
@@ -200,10 +201,30 @@ data_2021 <- data[seq(2,550,2),]
 row.names(data_2021)<-c()
 
 result <-data.frame(호선=data_2021$호선,역명=data_2021$역명,감소율=(data_2019$평균 - data_2021$평균)/data_2019$평균*100)
-result %>% arrange(desc(감소율))
+result <- result %>% arrange(desc(감소율))
+result
 
+# result를 지도로 시각화 => 별 의미가 없는거 같다 
 
+library(devtools)
+install_github('dkahle/ggmap')
+library(ggmap)
 
+api.key = "AIzaSyCgDWC7eGJBeHTi9mWBf04i-ek_pNDeKOg"
+register_google(api.key)
+gg_seoul<-get_googlemap('seoul',maptype = 'roadmap',zoom = 11)
+
+most_decreased<-result[1:50,]
+station_name <- paste(paste(most_decreased$호선,most_decreased$역명),'역',sep = '')
+loction <- geocode(enc2utf8(station_name))
+location_df<-data.frame(most_decreased,lon=loction$lon,lat=loction$lat)
+location_df[42,]$lon <-127.009529
+location_df[42,]$lat <-37.5703848
+location_df <- location_df[1:20,]
+
+ggmap(gg_seoul)+
+  geom_point(data=location_df,aes(x=lon,y=lat))+
+  geom_text(data=location_df,aes(x=lon,y=lat),label=location_df$역명,family="AppleGothic",size=2,vjust=2,col='red')
 
 
 
