@@ -27,35 +27,36 @@ metro <- as.data.frame(metro)
 colnames(metro) <- c('날짜','합계')
 head(metro)
 
-distancing_x <- c(as.Date('2020-3-22'),as.Date('2020-11-24'),as.Date('2020-12-08'),as.Date('2021-02-15'))
-distancing_y <- covid_new$합계[covid_new$`자치구 기준일` %in% distancing_x]
-distancing_text <- c('level 1','level 2','level 2.5','level 2')
+distancing_x <- c(as.Date('2020-3-22'),as.Date('2020-05-06'),as.Date('2020-11-24'),as.Date('2020-12-08'),as.Date('2021-02-15'))
+distancing_y <- covid_new$합계[covid_new$날짜 %in% distancing_x]
+distancing_text <- c('level 1','level 0','level 2','level 2.5','level 2')
 distancing <- data.frame(xvalue=distancing_x,yvalue=distancing_y)
 
 ggplot(data = covid_new,aes(x=`날짜`,y=합계)) + 
-  geom_line(size=0.5,col='tomato') +
-  geom_point(data=distancing,aes(x=xvalue,y=yvalue),col='blue')+
+  geom_line(size=0.5,col='skyblue') +
+  geom_point(data=distancing,aes(x=xvalue,y=yvalue),col='lime green')+
   geom_text(data=distancing,aes(x=xvalue,y=yvalue),label=distancing_text,hjust=0, vjust = 2,nudge_y = 0.7,size=2)+
-  scale_x_date(date_breaks = '1 week',date_labels = "%Y-%m-%d" )+
+  scale_x_date(date_breaks = '1 month',date_labels = "%Y-%m" )+
   scale_y_continuous(limits = c(0,750))+
-  theme(text = element_text(size=5),
-        axis.text.x=element_text(angle =- 90, vjust = 0.5)) +
+  theme(text = element_text(size=13),
+        axis.text.x=element_text(angle =- 90, vjust = 0.5),
+        plot.title=element_text(size=9)) +
   geom_vline(xintercept = c(as.Date('2020-02-28'),as.Date('2020-05-05'),as.Date('2020-08-12'),as.Date('2020-11-13'),as.Date('2021-02-28')),lty='dashed')+
-  geom_text(aes(x=as.Date('2021-01-04'),y=720),label='3rd wave') +
-  geom_text(aes(x=as.Date('2020-09-28'),y=720),label='2nd wave')+
-  geom_text(aes(x=as.Date('2020-03-30'),y=720),label='1st wave')+
-  ggtitle('2020-02-28~2021-05-31/n 서울시 코로나 일별 확진자 변화')
-  
+  geom_text(aes(x=as.Date('2021-01-04'),y=750),label='<3rd wave>',size=3)+
+  geom_text(aes(x=as.Date('2020-09-28'),y=750),label='<2nd wave>',size=3)+
+  geom_text(aes(x=as.Date('2020-03-30'),y=750),label='<1st wave>',size=3)+
+  ggtitle('2020-02-28~2021-05-31\n서울시 코로나 일별 확진자 변화')
   
 
 metro$구분 ='이용량'
 covid_new $구분 ='확진자'
 rbind(metro,covid_new)
-
+options(scipen=999)
 ggplot(data = rbind(metro,covid_new),aes(x=날짜,y=합계,col=구분))+
   geom_line()+
-  ggtitle('확진자에 따른 지하철 이용량 추이')+
-  facet_grid(구분~.,scales='free')
+  ggtitle('2020년3월~2021년 5월\n확진자에 따른 지하철 이용량 추이')+
+  facet_grid(구분~.,scales='free')+
+  theme(plot.title = element_text(size=9))
 
 
 
@@ -76,7 +77,7 @@ ggplot(data=thirty_days,aes(x=날짜,y=합계,fill=평일주말))+
   geom_col()+facet_wrap(~구분,ncol=2,scales = 'free_x')+
   scale_x_date(date_breaks = '1 day',date_labels = "%a")+
   ggtitle('2020년 11월 24일\n9시 영업 제한 전후 30일 지하철 이용량')+
-  theme(text = element_text(size=5),
+  theme(text = element_text(size=10),
         axis.text.x=element_text(angle =- 90, vjust = 0.5))
 
 # 30일 전후를 기준으로 모든 역들이 이동량이 다 감소한건지 
@@ -132,13 +133,15 @@ metro_total <-as.data.frame(metro_total)
 metro_total$구분 <- strftime(metro_total$날짜,'%Y')
 metro_total$평일주말 <-weekdays(metro_total$날짜,abbr=TRUE)
 metro_total$평일주말<-ifelse((metro_total$평일주말=='Sat')|(metro_total$평일주말=='Sun'),'주말','평일')
-index = (metro_total$날짜>=as.Date('2019-03-01')&metro_total$날짜<=as.Date('2019-05-31'))|(metro_total$날짜>=as.Date('2020-03-01')&metro_total$날짜<=as.Date('2020-05-31'))|(metro_total$날짜>=as.Date('2021-03-01')&metro_total$날짜<=as.Date('2021-05-31'))
+index = (metro_total$날짜>=as.Date('2019-01-01')&metro_total$날짜<=as.Date('2019-05-31'))|(metro_total$날짜>=as.Date('2020-01-01')&metro_total$날짜<=as.Date('2020-05-31'))|(metro_total$날짜>=as.Date('2021-01-01')&metro_total$날짜<=as.Date('2021-05-31'))
 metro_total<-metro_total[index,]
 
 ggplot(data=metro_total,aes(x=날짜,y=합계,fill=평일주말))+
   geom_col()+
   facet_wrap(~구분,ncol=3,scales = 'free_x')+
-  ggtitle('2019년,2020년,2021년 3월~5월 지하철 총 이용량')
+  ggtitle('2019년, 2020년, 2021년\n연도별 3월~5월 지하철 총 이용량')+
+  theme(text = element_text(size=10),plot.title=element_text(size=9))+
+  scale_x_date(date_breaks = '1 month',date_labels = "%b")
 
 
 
@@ -149,11 +152,13 @@ covid_new_by_distinct<-covid[,seq(1,53,2)]
 colnames(covid_new_by_distinct)<-c('날짜',gsub("추가","",colnames(covid_new_by_distinct)[-1]))
 covid_new_by_distinct<-covid_new_by_distinct[,-27]
 
-
 ggplot(melt(covid_new_by_distinct,
             id.vars = 1),aes(x=날짜,y=value))+
-  geom_col() + facet_wrap(~variable)
-
+  geom_col() + facet_wrap(~variable)+
+  ggtitle('구별 일일 신규 확진자 수')
+  scale_x_date(date_breaks = '6 month',date_labels = "%Y %b")+
+  theme(text = element_text(size=5))
+  
 
 # 구별 누적 확진자 그래프
 
@@ -203,7 +208,11 @@ row.names(data_2021)<-c()
 result <-data.frame(호선=data_2021$호선,역명=data_2021$역명,감소율=(data_2019$평균 - data_2021$평균)/data_2019$평균*100)
 result <- result %>% arrange(desc(감소율))
 result
+write.csv(result,'result.csv')
 
+result<- result %>% arrange(감소율)
+write.csv(result,'result_reverse.csv')
+result
 # result를 지도로 시각화 => 별 의미가 없는거 같다 
 
 library(devtools)
@@ -227,4 +236,35 @@ ggmap(gg_seoul)+
   geom_text(data=location_df,aes(x=lon,y=lat),label=location_df$역명,family="AppleGothic",size=2,vjust=2,col='red')
 
 
+
+
+# 지하철 전체 이용자수와 코로나 확진자 수의 상관 관계는
+# 약한 음의 상관 관계이다
+# 아무래도 출퇴근 시간의 필수 인력이 존재한다
+
+
+
+metro_lm<- read.csv('../data/data.csv',encoding = 'UTF-8')
+colnames(metro_lm)<-c('날짜','호선','역번호','역명','구분','-06','06-07','07-08','08-09','09-10','10-11','11-12','12-13','13-14','14-15','15-16','16-17','17-18','18-19','19-20','20-21','21-22','22-23','23-','요일')
+metro_lm$날짜<- as.Date(metro_lm$날짜,format='%Y-%m-%d')
+metro_lm<-metro_lm[c(1,2,4,5,11:17,21:24)]
+metro_lm$합계 <- apply(metro_lm[-c(1,2,3,4)],1,sum)
+metro_lm<-metro_lm %>% group_by(날짜) %>% summarise(합계 = sum(합계)) %>% as.data.frame()
+metro_lm
+metro_lm$구분<-weekdays(metro_lm$날짜)
+metro_lm_평일<-metro_lm[((metro_lm$날짜>=as.Date('2021-01-01'))&(metro_lm$날짜<=as.Date('2021-05-31')))&((metro_lm$구분!='Saturday')&(metro_lm$구분!='Sunday')),]
+metro_lm_기준<-metro_lm[((metro_lm$날짜>=as.Date('2019-01-01'))&(metro_lm$날짜<=as.Date('2019-05-31')))&((metro_lm$구분!='Saturday')&(metro_lm$구분!='Sunday')),]
+covid_new_lm <- covid_new
+covid_new_lm$요일<-weekdays(covid_new_lm$날짜)
+
+covid_new_lm<-covid_new_lm[((covid_new_lm$날짜>=as.Date('2021-01-01'))&(covid_new_lm$날짜<=as.Date('2021-05-31')))&((covid_new_lm$구분!='Saturday')&(covid_new_lm$구분!='Sunday')),]
+
+summary(lm(metro_lm_평일$합계~covid_new_lm$합계+metro_lm_기준$합계))
+
+length(covid_new_lm$합계)
+length(metro_lm_평일$합계)
+length(metro_lm_기준$합계)
+
+
+metro_lm_기준<-metro_lm_기준[-c(108,109),]
 
