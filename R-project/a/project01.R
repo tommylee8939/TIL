@@ -75,10 +75,64 @@ thirty_days$평일주말<-ifelse((thirty_days$평일주말=='Sat')|(thirty_days$
 
 ggplot(data=thirty_days,aes(x=날짜,y=합계,fill=평일주말))+
   geom_col()+facet_wrap(~구분,ncol=2,scales = 'free_x')+
-  scale_x_date(date_breaks = '1 day',date_labels = "%a")+
+  scale_x_date(date_breaks = '1 day',date_labels = "%m-%d")+
   ggtitle('2020년 11월 24일\n9시 영업 제한 전후 30일 지하철 이용량')+
-  theme(text = element_text(size=10),
+  theme(text = element_text(size=8),
         axis.text.x=element_text(angle =- 90, vjust = 0.5))
+
+# 2021년 11월 24일 부터 12월 25일 까지 2019년과 비교
+metro1<- read.csv('../data/data.csv',encoding = 'UTF-8')
+colnames(metro1)<-c('날짜','호선','역번호','역명','구분','-06','06-07','07-08','08-09','09-10','10-11','11-12','12-13','13-14','14-15','15-16','16-17','17-18','18-19','19-20','20-21','21-22','22-23','23-','요일')
+metro1$합계 <-apply(metro1[,6:24],1,sum)
+metro1$`날짜`<-as.Date(metro1$`날짜`,format = '%Y-%m-%d')
+metro1 <- metro1 %>% group_by(날짜) %>% 
+  summarize(일별총이용량 = sum(합계))
+metro1 <- as.data.frame(metro1)
+colnames(metro1) <- c('날짜','합계')
+
+thirty_days_before<-metro1[metro1$날짜 %in% c(as.Date('2019-11-24')+1:30),]
+thirty_days_after<-metro1[metro1$날짜 %in% c(as.Date('2020-11-24')+1:30),]
+
+
+thirty_days_before$구분<- '2019년'
+thirty_days_after$구분<- '2020년'
+thirty_days<-rbind(thirty_days_before,thirty_days_after)
+thirty_days$평일주말 <-weekdays(thirty_days$날짜,abbr=TRUE)
+thirty_days$평일주말<-ifelse((thirty_days$평일주말=='Sat')|(thirty_days$평일주말=='Sun'),'주말','평일')
+
+
+
+ggplot(data=thirty_days,aes(x=날짜,y=합계,fill=평일주말))+
+  geom_col()+facet_wrap(~구분,ncol=2,scales = 'free_x')+
+  scale_x_date(date_breaks = '1 day',date_labels = "%m-%d")+
+  ggtitle('2019년과 20202년\n11월 24일 ~ 12월 25일 지하철 이용량 비교')+
+  theme(text = element_text(size=8),
+        axis.text.x=element_text(angle =- 90, vjust = 0.5))
+
+
+
+## 12월 23일 전후 30일 비교
+
+thirty_days_before<-metro[metro$날짜 %in% c(as.Date('2020-12-23')-30:1),]
+thirty_days_after<-metro[metro$날짜 %in% c(as.Date('2020-12-23')+1:30),]
+
+
+thirty_days_before$구분<- '30일 전'
+thirty_days_after$구분<- '30일 후'
+thirty_days<-rbind(thirty_days_before,thirty_days_after)
+thirty_days$평일주말 <-weekdays(thirty_days$날짜,abbr=TRUE)
+thirty_days$평일주말<-ifelse((thirty_days$평일주말=='Sat')|(thirty_days$평일주말=='Sun'),'주말','평일')
+
+
+ggplot(data=thirty_days,aes(x=날짜,y=합계,fill=평일주말))+
+  geom_col()+facet_wrap(~구분,ncol=2,scales = 'free_x')+
+  scale_x_date(date_breaks = '1 day',date_labels = "%m-%d")+
+  ggtitle('2020년 12월 23일\n5인 이상 집합 금지 전후 30일 지하철 이용량')+
+  theme(text = element_text(size=8),
+        axis.text.x=element_text(angle =- 90, vjust = 0.5))
+
+
+
 
 # 30일 전후를 기준으로 모든 역들이 이동량이 다 감소한건지 
 # 아니면 특정 역의 이동량이 감소한건지
@@ -133,16 +187,15 @@ metro_total <-as.data.frame(metro_total)
 metro_total$구분 <- strftime(metro_total$날짜,'%Y')
 metro_total$평일주말 <-weekdays(metro_total$날짜,abbr=TRUE)
 metro_total$평일주말<-ifelse((metro_total$평일주말=='Sat')|(metro_total$평일주말=='Sun'),'주말','평일')
-index = (metro_total$날짜>=as.Date('2019-01-01')&metro_total$날짜<=as.Date('2019-05-31'))|(metro_total$날짜>=as.Date('2020-01-01')&metro_total$날짜<=as.Date('2020-05-31'))|(metro_total$날짜>=as.Date('2021-01-01')&metro_total$날짜<=as.Date('2021-05-31'))
+index = (metro_total$날짜>=as.Date('2019-01-01')&metro_total$날짜<=as.Date('2019-12-31'))|(metro_total$날짜>=as.Date('2020-01-01')&metro_total$날짜<=as.Date('2020-12-31'))|(metro_total$날짜>=as.Date('2021-01-01')&metro_total$날짜<=as.Date('2021-05-31'))
 metro_total<-metro_total[index,]
 
 ggplot(data=metro_total,aes(x=날짜,y=합계,fill=평일주말))+
   geom_col()+
-  facet_wrap(~구분,ncol=3,scales = 'free_x')+
+  facet_grid(~구분,scales = 'free_x',space='free_x')+
   ggtitle('2019년, 2020년, 2021년\n연도별 3월~5월 지하철 총 이용량')+
   theme(text = element_text(size=10),plot.title=element_text(size=9))+
   scale_x_date(date_breaks = '1 month',date_labels = "%b")
-
 
 
 
@@ -208,11 +261,18 @@ row.names(data_2021)<-c()
 result <-data.frame(호선=data_2021$호선,역명=data_2021$역명,감소율=(data_2019$평균 - data_2021$평균)/data_2019$평균*100)
 result <- result %>% arrange(desc(감소율))
 result
+
+
+
 write.csv(result,'result.csv')
 
 result<- result %>% arrange(감소율)
 write.csv(result,'result_reverse.csv')
 result
+
+
+
+
 # result를 지도로 시각화 => 별 의미가 없는거 같다 
 
 library(devtools)
@@ -267,4 +327,15 @@ length(metro_lm_기준$합계)
 
 
 metro_lm_기준<-metro_lm_기준[-c(108,109),]
+
+metro<- read.csv('../data/data.csv',encoding = 'UTF-8')
+colnames(metro)<-c('날짜','호선','역번호','역명','구분','-06','06-07','07-08','08-09','09-10','10-11','11-12','12-13','13-14','14-15','15-16','16-17','17-18','18-19','19-20','20-21','21-22','22-23','23-','요일')
+
+metro$`날짜`<-as.Date(metro$`날짜`,format = '%Y-%m-%d')
+metro<-metro[c(1,2,4,5,8:10)]
+metro$출근 <- apply(metro[5:7],1,sum)
+metro <- metro[-c(5,6,7)]
+tail(metro)
+metro<-metro %>% group_by(날짜) %>% summarise(출근=sum(출근))
+plot(ts(metro[2],start=c(2019,1,1),end=c(2021,5,31),frequency = 365))
 
