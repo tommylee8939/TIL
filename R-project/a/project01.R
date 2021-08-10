@@ -108,6 +108,7 @@ ggplot(data=thirty_days,aes(x=날짜,y=합계,fill=평일주말))+
   ggtitle('2019년과 20202년\n11월 24일 ~ 12월 25일 지하철 이용량 비교')+
   theme(text = element_text(size=8),
         axis.text.x=element_text(angle =- 90, vjust = 0.5))
+  
 
 
 
@@ -171,6 +172,7 @@ for (i in c(1:nrow(total_station_df))){
   }
 }
 
+%
 usage_decreased 
 
 # 2021년 3월 5월 이용량
@@ -208,10 +210,9 @@ covid_new_by_distinct<-covid_new_by_distinct[,-27]
 ggplot(melt(covid_new_by_distinct,
             id.vars = 1),aes(x=날짜,y=value))+
   geom_col() + facet_wrap(~variable)+
-  ggtitle('구별 일일 신규 확진자 수')
+  ggtitle('2020-02-28~2021-05-31\n서울시 구별 일일 신규 확진자 수')
   scale_x_date(date_breaks = '6 month',date_labels = "%Y %b")+
-  theme(text = element_text(size=5))
-  
+  theme(text = element_text(size=4),plot.title=element_text(size=5))
 
 # 구별 누적 확진자 그래프
 
