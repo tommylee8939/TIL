@@ -172,8 +172,8 @@ for (i in c(1:nrow(total_station_df))){
   }
 }
 
-%
-usage_decreased 
+
+
 
 # 2021년 3월 5월 이용량
 # 2020년 3월 5월 이용량
