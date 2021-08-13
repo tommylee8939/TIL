@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    blog index page....
+    <form action="../register/" method="post">
+        {% csrf_token %}
+        title : <input type="text" name="title" id="title"><br/>
+        date  : <input type="date" name="regDate" id="regDate"><br/>
+        content : <textarea name="body" id="body"></textarea><br/>
+        <button>SEND</button>
+    </form>
+    <hr/>
+    <a href="../list">전체목록 보기</a>
+    <hr/>
+    <form action="../search/" method="post">
+        {% csrf_token %}
+        search : <input type="text" name="title" id="keyword">
+        <input type="submit" value="search">
+    </form>
+</body>
+</html>
+

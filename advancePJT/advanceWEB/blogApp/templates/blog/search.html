@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    {% if blog %}
+        {{blog.title}}&nbsp;&nbsp;{{blog.regDate}}&nbsp;&nbsp;{{blog.body}}<br/>
+    {% else %}
+        데이터가 존재하지 않습니다~~~
+    {% endif %}
+</body>
+</html>

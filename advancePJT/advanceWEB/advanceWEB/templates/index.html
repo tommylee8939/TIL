@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div align="center">
+        <h1>web index page</h1>
+    </div>
+    <hr/>
+    :: form processing
+    <form action="../login/" method="post">
+        {% csrf_token %}
+        ID : <input type="text" name="id" id="id"><br/>
+        PWD : <input type="password" name="pwd" id="pwd"><br/>
+        <input type="submit" value="LOGIN">
+    </form>
+    :: a tag<br/>
+    <a href="../parameter?id=jslim&pwd=jslim">a tag를 이용한 데이터 전송방식(get)</a>
+    <hr/>
+    :: blogApp 연결<br/>
+    <a href="../blog/index/">블로그</a>
+</body>
+</html>
