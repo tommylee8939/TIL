@@ -1,0 +1,114 @@
+---
+title: "Statistical Models Assignment 2"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# 1
+## a
+In this section we prove that the Gamma distribution, as specified by
+$$
+f(y ; r, \lambda)=\frac{y^{r-1} e^{-y / \lambda}}{\lambda^r \Gamma(r)}, r, \lambda>0, y>0
+$$
+is a member of the Exponential family. All members of the exponential family have a pdf that can be written in the form
+
+$$
+f_i\left(y, \theta_i\right)=f_
+i\left(y, \theta_i, \phi\right)=\exp \left\{\frac{y \theta_i-b\left(\theta_i\right)}{\phi / A_i}+c\left(y, \phi / A_i\right)\right\}
+$$. 
+We now continue to derive:
+$$
+log f(y ; r, \lambda) = (r-1)log(y) -y/\lambda -rlog(\lambda) -log\Gamma(r)
+$$
+
+$$
+\Rightarrow f(y ; r, \lambda) = \left\{ \frac{y(r\lambda)^{-1} + log(1/\lambda)}{-1/r} + (r-1)log(y) -log\Gamma(r) \right\}
+$$
+
+Now we define $\theta = (r\lambda)^{-1}$ and $\phi = 1/r$. Furthermore we note that $log(1/\lambda) = log(\phi) - log(\theta)$, such that:
+
+$$
+f(y ; r, \lambda) = exp \left\{ \frac{y\theta - log(\theta)}{- \phi} + \frac{log(\phi)}{\phi} + (\frac{1}{\phi} - 1)log(y) - log\Gamma(\frac{1}{\phi})\right\}
+$$
+
+$$
+= exp\left\{\frac{y\theta - b(\theta)}{\phi/A} + c(y,\phi/A) \right\}
+$$
+Which is the representation for the Exponential family that we were looking for. 
+
+## b
+Continuing on (a), we identify $\theta = (r\lambda)^{-1}$, $\phi = 1/r$, $b(\theta) = log(\theta)$, $A=-1$ and $c(y,\phi/A) = \frac{log(\phi)}{\phi} + (\frac{1}{\phi} - 1)log(y) - log\Gamma(\frac{1}{\phi})$. \\ \\ 
+We know that, under appropriate conditions:
+$E[Y_i] = b'(\theta)$ and $Var(Y_i) = b''(\theta)\phi/A_i$. We can use this to show:
+$$
+E[Y_i] = b'(\theta) = 1/\theta = \frac{1}{(r\lambda)^{-1}} = r\lambda
+$$
+
+and 
+$$
+Var(Y_i) = b''(\theta)\phi/A_i = -\frac{1}{\theta^2} \times -\frac{1}{r} = \frac{\lambda^2r^2}{r} = r\lambda^2
+$$
+We can identify the canonical link function $g$, for which $\theta_i = g(\mu_i)$ such that $g(u) = (b')^{-1}(u)$ as $(b')^{-1}(u) = \frac{1}{u}$
+
+## c
+In this section we derive expressions for the residual deviance D, Pearson's P-statistic and the working weights $\hat W$. \\ \\
+The residual deviance D is defined as 
+$$
+D = \sum_{i=1}^n d_i,\
+d_i=2 A_i\left[Y_i\left(\tilde{\theta}_i-\hat{\theta}_i\right)-b\left(\tilde{\theta}_i\right)+b\left(\hat{\theta}_i\right)\right]
+$$
+
+we can now derive, using $\tilde\theta_i = (b')^{-1}(Y_i)=\frac{1}{Y_i}$ and $b(u) = log(u)$
+
+$$
+d_i = -2 \left[ Y_i \left(\frac{1}{Y_i} - \hat \theta_i - log(\frac{1}{Y_i}) + log(\hat \theta_i) \right) \right]
+$$
+
+$$
+= -2 \left[ 1 - Y_i \left( - \hat \theta_i + log(Y_i) + log(\hat \theta_i) \right) \right]
+$$
+
+$$
+ = -2 + 2Y_i\left(-\hat \theta_i + log(Y_i) + log(-\hat \theta_i)\right)
+$$
+
+\\
+
+Pearson's p-statistic is defined as 
+$$
+P=\sum_{i=1}^n \frac{\left[Y_i-b^{\prime}(\hat {\theta}_i)\right]^2}{b^{\prime \prime}(\hat{\theta}_i) / A_i} = \sum_{i=1}^n \frac{\left[Y_i- 1/\hat\theta_i \right]^2}{\hat\theta^{-2}_i} = \sum_{i=1}^n \frac{ Y_i^2 -2 Y_i\hat \theta_i^{-1} + \hat \theta_i^{-2} }{\hat \theta^{-2}_i} 
+$$
+$$
+= \sum_{i=1}^n Y_i^2\hat \theta^2_i - 2Y_i\hat \theta_i + 1
+= \sum_{i=1}^n (Y_i\hat \theta_i - 1)^2
+$$
+\\
+
+The elements $\hat w_{ii}$ of the working weight matrix $\hat W$ are defined by 
+$$
+\hat w_{i i}=\frac{A_i}{\left[g^{\prime}\left(\mu_i\right)\right]^2 b^{\prime \prime}\left(\theta_i\right)} = \frac{-1}{(-\mu_i^{-2})^2(-\hat\theta_i^{-2})} = \hat\theta_i^2
+$$
+
+# 2
+## a
+For the NULL model we have $n-1 = 17 \Rightarrow n = 18$. Furthermore we can read $\hat\beta = (\beta_0, \beta_1, \beta_2) = (0.021450, 0.017756, 0.010868)$ and  $\hat\phi = 0.01959$. We test $H_0: \beta_1 = 0$ vs $H_1: \beta_1 \neq 0$ by using the computed t-statistic $t = 17.361$ and the property that this value has a $t_{n-p-1}$ distribution. We compute a two-sided p-value of $<0.00001$, rejecting the null. A confidence interval for $\beta_1$ is obtained as $\hat\beta_1 \pm t_{n-p-1;1-\alpha/2} \sqrt{\hat I_{ii} } = 0.017756 \pm t_{15;1-0.04/2} \times 0.001023  = [0.0154, 0.0200]$.
+
+## b
+We investigate the relevance of both covariates using the residual deviance table as provided. We observe a residual deviance for the model with only an intercept (NULL) of $7.7087$. The covariate $X1$ reduces the residual deviance by $6.7$. The F-test indicates that this is significant and that the covariate $X1$ should not be omitted. The covariate $X2$ reduces the residual deviance of the model including $X1$ by another $0.7$. Again, the F-test indicates that this is a significant improvement and that the covariate $X2$ should not be dropped. To conclude, both covariates are relevant to the model.
+
+## c
+In the first table, the entries 't value' and 'Pr($>|t|$)' can be recovered, as they are both functions of 'Estimate' and 'Std. Error'.  One of 'Estimate' and 'Std. Error' can be recovered if the other is known and 't value' is known.
+
+In the second table 'Df' and 'Resid Df' can be computed based on $n$ and $p$ and 'F' and 'Pr($>F$)' can be computed based on the other columns. The column 'Deviance' can be recovered when the column 'Resid. Dev' is available.    
+
+## d
+We use the option test=F because $\phi$ is not known but estimated by the glm function. If we had used the option test='Chisq' the test statistic $\frac{D_{\omega}-D_{\Omega}}{\phi}$ would have been used, with an assumed distribution of $\chi_{q-p}^2$ where $q$ is the number of parameters of the reduced model and $p$ of the full model. It is thus certainly possible to derive the p-value when the option test='Chisq' would have been used.
+
+## e
+It is possible to derive the value of the Pearson test statistic by using the estimator for $\phi$, $\hat \phi = \frac{P}{n-p-1} \Rightarrow P = \hat \theta(n-p-1)$. Using the estimated value $\hat \phi = 0.01959$ we can derive $P = 01959(18-2-1) = 0.29385$. \\
+For the working matrix matrix $W$, we have previously derived the value $\hat w_{ii} = \hat \theta_i^2$. Since $\hat \theta_i = \pmb {\hat \beta}^Tx_i$ and the values of $x_i$ are not available we are not able to recover the values $w_ii$.
+
